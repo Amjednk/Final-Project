@@ -5,22 +5,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../components/Spinner";
-import { deleteAllContacts, deleteContact, getAllContacts } from "../Redux/ContactSlice";
-import{ FcDeleteDatabase, FcDeleteRow, FcCancel, FcSearch} from "react-icons/fc";
-import {MdCreateNewFolder, MdEditDocument} from "react-icons/md";
+import {
+  deleteAllContacts,
+  deleteContact,
+  getAllContacts,
+} from "../Redux/ContactSlice";
+import {
+  FcDeleteDatabase,
+  FcDeleteRow,
+  FcCancel,
+} from "react-icons/fc";
+import { MdCreateNewFolder, MdEditDocument } from "react-icons/md";
 
 const ContactList = () => {
   const [modalData, setModalData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
-  let {allContacts} = useSelector(
-    (state) =>state.contactsData
-  );
+  const { allContacts } = useSelector((state) => state.contactsData);
+  console.log(allContacts);
   const { userAuth } = useSelector((state) => state);
   const { loading } = useSelector((state) => state.contactsData);
   const [searchInput, setSearchInput] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState([]);
-
   useEffect(() => {
     dispatch(getAllContacts());
   }, [dispatch]);
@@ -28,22 +33,17 @@ const ContactList = () => {
   const deleteHandler = (e) => {
     e.preventDefault();
     dispatch(deleteContact(modalData._id));
+    setShowModal(false);
   };
 
   const deleteAllHandler = (e) => {
     e.preventDefault();
     dispatch(deleteAllContacts());
   };
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const searchedContact = allContacts?.filter((el) =>
+    el.name.trim().toLowerCase().includes(searchInput.trim().toLowerCase())
+  );
 
-    const searchedContact =  allContacts.filter((el) =>
-      el.name.trim().toLowerCase().includes(searchInput.trim().toLowerCase())
-    );
-    console.log(searchedContact);
-    setFilteredContacts(searchedContact);
-
-  };
   return (
     <>
       <div>
@@ -53,8 +53,8 @@ const ContactList = () => {
         {!allContacts ? (
           <h4>No contacts found!</h4>
         ) : (
-          <> 
-            <form className="d-flex" onSubmit={handleSearch}>
+          <>
+            <form className="d-flex">
               <input
                 type="text"
                 name="searchInput"
@@ -64,49 +64,52 @@ const ContactList = () => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
-              <Button  variant="outline-dark" type="submit" className="my-3 mx-2">
-                <FcSearch size={30}/> 
-              </Button>
             </form>
-          <p>Total Contacts: <strong>{allContacts.length}</strong></p>
-          <table className="table table-hover">
-            <thead>
-              <tr className="table table-dark">
-                <th scope="col">Name</th>
-                <th scope="col">Address</th>
-                <th scope="col">Email</th>
-                <th scope="col">Phone</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userAuth?.userLoggedIn?.userFound? 
-                (filteredContacts || allContacts)?.map((el) => (
-                    <tr
-                      className="table-light"
-                      key={el._id}
-                      onClick={() => {
-                        setModalData({});
-                        setModalData(el);
-                        setShowModal(true);
-                      }}
-                    >
-                      <th scope="row">{el.name}</th>
-                      <td>{el.address}</td>
-                      <td>{el.email}</td>
-                      <td>{el.phone}</td>
-                    </tr>
-                  )): "Must Login to access contacts information! "}
-            </tbody>
-          </table>
+            <p>
+              Total Contacts: <strong>{allContacts.length}</strong>
+            </p>
+            <table className="table table-hover">
+              <thead>
+                <tr className="table table-dark">
+                  <th scope="col">Name</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userAuth?.userLoggedIn?.userFound
+                  ? searchedContact?.map((el) => (
+                      <tr
+                        className="table-light"
+                        key={el._id}
+                        onClick={() => {
+                          setModalData({});
+                          setModalData(el);
+                          setShowModal(true);
+                        }}
+                      >
+                        <th scope="row">{el.name}</th>
+                        <td>{el.address}</td>
+                        <td>{el.email}</td>
+                        <td>{el.phone}</td>
+                      </tr>
+                    ))
+                  : "Must Login to access contacts information! "}
+              </tbody>
+            </table>
           </>
         )}
-        <Link  title="Create Contact" className="mx-2" to={"/create"}>
+        <Link title="Create Contact" className="mx-2" to={"/create"}>
           <MdCreateNewFolder size={50} />
         </Link>
-        <Button title="Delete All Contacts" variant="warning" onClick={deleteAllHandler}> 
-          <FcDeleteDatabase size={20}/>
+        <Button
+          title="Delete All Contacts"
+          variant="warning"
+          onClick={deleteAllHandler}
+        >
+          <FcDeleteDatabase size={20} />
         </Button>
-    
       </div>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
@@ -129,14 +132,26 @@ const ContactList = () => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Link title="Edit Contact" className="btn btn-info"  to={`/edit/${modalData._id}`}>
-            <MdEditDocument size={20}/>
+          <Link
+            title="Edit Contact"
+            className="btn btn-info"
+            to={`/edit/${modalData._id}`}
+          >
+            <MdEditDocument size={20} />
           </Link>
-          <Button title="Delete Contact" variant="warning" onClick={deleteHandler}>
-            <FcDeleteRow size={20}/>
+          <Button
+            title="Delete Contact"
+            variant="warning"
+            onClick={deleteHandler}
+          >
+            <FcDeleteRow size={20} />
           </Button>
-          <Button title="Cancel" variant="secondary" onClick={() => setShowModal(false)}>
-            <FcCancel size={20}/>
+          <Button
+            title="Cancel"
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+          >
+            <FcCancel size={20} />
           </Button>
         </Modal.Footer>
       </Modal>

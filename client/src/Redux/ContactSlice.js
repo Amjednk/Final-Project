@@ -23,10 +23,13 @@ async (
         config
     );
     toast.success("Created Successfully");
-    navigate("/create");
+    navigate("/allcontacts");
     return data;
     } catch (error) {
-    return rejectWithValue(error.response.data);
+    if (!error?.response) {
+        throw error;
+    }
+    return rejectWithValue(error?.response?.data);
     }
 }
 );
@@ -75,30 +78,31 @@ async (id, { rejectWithValue, getState, dispatch }) => {
 );
 
 export const editContact = createAsyncThunk(
-    "/api/edit",
-    async ({ id, contactDetails, navigate }, { rejectWithValue, getState }) => {
-        const userAuth = getState()?.userAuth;
-        const { userLoggedIn } = userAuth;
-        const config = {
-        headers: { Authorization: `Bearer ${userLoggedIn?.token}` },
-        };
-    
-        try {
-        const { data } = await axios.put(
-            `http://localhost:5000/api/edit/${id}`,
-            contactDetails,
-            config
-        );
-        navigate("/allcontacts");
-        return data;
-        } catch (error) {
-        if (!error?.response) {
-            throw error;
-        }
-        return rejectWithValue(error?.response?.data);
-        }
-    }
+"/api/edit",
+async ({ id, contactDetails, navigate }, { rejectWithValue, getState }) => {
+    const userAuth = getState()?.userAuth;
+    const { userLoggedIn } = userAuth;
+    const config = {
+    headers: { Authorization: `Bearer ${userLoggedIn?.token}` },
+    };
+
+    try {
+    const { data } = await axios.put(
+        `http://localhost:5000/api/edit/${id}`,
+        contactDetails,
+        config
     );
+    navigate("/allcontacts");
+    toast.success("Contact has been successfully updated");
+    return data;
+    } catch (error) {
+    if (!error?.response) {
+        throw error;
+    }
+    return rejectWithValue(error?.response?.data);
+    }
+}
+);
 
 export const deleteContact = createAsyncThunk(
 "api/delete",
@@ -125,28 +129,28 @@ async (id, { rejectWithValue, getState }) => {
 );
 
 export const deleteAllContacts = createAsyncThunk(
-    "api/delete",
-    async (id, { rejectWithValue, getState }) => {
-        const userAuth = getState()?.userAuth;
-        const { userLoggedIn } = userAuth;
-        const config = {
-        headers: { Authorization: `Bearer ${userLoggedIn?.token}` },
-        };
-        if (window.confirm("are you sure you want to delete all your contacts ?")) {
-        try {
-            const { data } = await axios.delete(
-            `http://localhost:5000/api/delete_all`,
-            config
-            );
-            toast.success("Deleted Successfully");
-    
-            return data;
-        } catch (error) {
-            return rejectWithValue(error?.response?.message);
-        }
-        }
+"api/delete",
+async (id, { rejectWithValue, getState }) => {
+    const userAuth = getState()?.userAuth;
+    const { userLoggedIn } = userAuth;
+    const config = {
+    headers: { Authorization: `Bearer ${userLoggedIn?.token}` },
+    };
+    if (window.confirm("are you sure you want to delete all your contacts ?")) {
+    try {
+        const { data } = await axios.delete(
+        `http://localhost:5000/api/delete_all`,
+        config
+        );
+        toast.success("Deleted Successfully");
+
+        return data;
+    } catch (error) {
+        return rejectWithValue(error?.response?.message);
     }
-    );
+    }
+}
+);
 
 //Checking data on local storage of the navigator
 const userStored = localStorage.getItem("userInfos")
@@ -165,7 +169,6 @@ extraReducers: {
     },
     [create.fulfilled]: (state, action) => {
     state.contactCreated = action?.payload;
-    window.location.reload();
     state.appErr = undefined;
     state.serverErr = undefined;
     },

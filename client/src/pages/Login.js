@@ -1,10 +1,9 @@
 /*Login page */
-
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { login } from "../Redux/UserSlice";
 
@@ -35,7 +34,6 @@ const Login = (props) => {
     return ( 
     //getting and submitting form data
     <>
-    <ToastContainer autoClose ={1500}/>
     {!userLoggedIn? ( 
     <form onSubmit={handleSubmit}>
         <h3>LOGIN</h3>

@@ -82,6 +82,9 @@ router.post("/login", async (req, res)=> {
         if (!userFound) {
             return res.status(401).json({ message: "invalid email or password."});
         }
+        if (userFound.isBlocked) {
+            return res.status(401).json({ message: "Account locked, please contact the admin!"});
+        }
         // if user found
         const passwordMatch = await bcrypt.compare(
             password,

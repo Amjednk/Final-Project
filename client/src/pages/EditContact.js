@@ -5,9 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { editContact, getSingleContact } from "../Redux/ContactSlice";
-import{ FcCancel} from "react-icons/fc";
-import {MdSaveAs} from "react-icons/md";
+import { FcCancel } from "react-icons/fc";
+import { MdSaveAs } from "react-icons/md";
 import { Button } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 const EditContact = () => {
 const { id } = useParams();
@@ -33,7 +34,7 @@ const handleChange = (e) => {
 //Action on submit
 const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(editContact({ id, contactDetails, navigate }));
+    dispatch(editContact({ id, contactDetails, navigate, toast }));
 };
 
 return (
@@ -102,10 +103,10 @@ return (
         />
         </div>
         <Button title="Save" type="submit" variant="info" className="my-2">
-            <MdSaveAs size={20}/>
-        </Button >
-        <Link title="Cancel" className="btn btn-secondary mx-2"  to={"/"}>
-            <FcCancel size={20}/>
+        <MdSaveAs size={20} />
+        </Button>
+        <Link title="Cancel" className="btn btn-secondary mx-2" to={"/"}>
+        <FcCancel size={20} />
         </Link>
     </form>
     </>
